@@ -5,6 +5,7 @@
       this.element = ele;
       this._events = {};
       this.rewriteAddEventListener();
+      this.rewriteRemoveEventListener();
       ele.getAllEventListeners = this.getAllEventListeners.bind(this);
       ele.getAllEvents = this.getAllEvents.bind(this)
     }
@@ -16,12 +17,23 @@
         addEventListener.call(this.element, arguments[0], arguments[1])
       }
     }
+    rewriteRemoveEventListener() {
+      const removeEventlistener = this.element.removeEventListener;
+      const _ = this;
+      this.element.removeEventListener = function() {
+        _.removeEvent(arguments[0]);
+        removeEventlistener.call(this.element, arguments[0], arguments[1]);
+      }
+    }
     addEvent(eventName, callback) {
       if(this._events[eventName]) {
         this._events[eventName].push(callback);
       } else {
         this._events[eventName] = [callback];
       }
+    }
+    removeEvent(eventName) {
+      delete this._events[eventName];
     }
     getAllEvents() {
       return Object.getOwnPropertyNames(this._events);
