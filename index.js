@@ -1,20 +1,27 @@
-(function() {
-
+(function(global) {
+  const document = global.document;
   class BaseEvent {
     constructor(ele) {
       this.element = ele;
       this._events = {};
-      ele.bindEvent = this.bindEvent.bind(this);
+      this.rewriteAddEventListener();
       ele.getAllEventListeners = this.getAllEventListeners.bind(this);
       ele.getAllEvents = this.getAllEvents.bind(this)
     }
-    bindEvent(eventName, callback) {
+    rewriteAddEventListener() {
+      const addEventListener = this.element.addEventListener;
+      const _ = this;
+      this.element.addEventListener = function() {
+        _.addEvent(arguments[0], arguments[1])
+        addEventListener.call(this.element, arguments[0], arguments[1])
+      }
+    }
+    addEvent(eventName, callback) {
       if(this._events[eventName]) {
         this._events[eventName].push(callback);
       } else {
         this._events[eventName] = [callback];
       }
-      this.element.addEventListener(eventName, callback);
     }
     getAllEvents() {
       return Object.getOwnPropertyNames(this._events);
@@ -68,8 +75,8 @@
       }
     }
 
-    const proxyObject = new Proxy(obj, hanlder);
-    return proxyObject
+    const proxyObject = new Proxy({obj}, hanlder);
+    return proxyObject.obj
   }
 
   const getElementsByName = document.getElementsByName;
@@ -98,4 +105,4 @@
     }
     return proxyObject(elem);
   }
-})(typeof window !== undefined ? window : null);
+})(typeof window !== 'undefined' ? window : null);
