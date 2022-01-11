@@ -12,6 +12,9 @@
     <input type="text" />
   </div>
   <script>
+    function callback3() {
+      console.log('click3')
+    }
     const dom1 = document.getElementById('eevent')
     dom1.addEventListener('click', (e) => {
       console.log('click1')
@@ -24,14 +27,17 @@
     console.log(dom2.getAllEvents())
     const dom3 = document.getElementsByTagName('div')[0];
     dom3.addEventListener('click',(e) => {
-      console.log('click')
+      console.log('click3')
+      dom3.removeEventListener('click', function() {
+        console.log('hi')
+      })
     })
     console.log(dom3.getAllEvents())
+    console.log(dom3.getAllEventListeners())
     const dom5 = document.createElement('div');
     dom5.innerText = "new div";
-    dom5.addEventListener('click', (e) => {
-      console.log('click');
-    })
+    dom5.addEventListener('click', callback3)
+    dom5.removeEventListener('click', callback3)
     document.body.append(dom5);
     console.log(dom5.getAllEvents())
     console.log(dom5.getAllEventListeners())
