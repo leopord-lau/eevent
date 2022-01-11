@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>eevent</title>
+  <script src="../index.js"></script>
+</head>
+<body>
+  <div id="eevent" class="eeventc">
+    <input type="text" />
+  </div>
+  <script>
+    const dom1 = document.getElementById('eevent')
+    dom1.addEventListener('click', (e) => {
+      console.log('click1')
+    })
+    console.log(dom1.getAllEvents())
+    const dom2 = document.getElementsByClassName('eeventc')[0];
+    dom2.addEventListener('click',(e) => {
+      console.log('click2')
+    })
+    console.log(dom2.getAllEvents())
+    const dom3 = document.getElementsByTagName('div')[0];
+    dom3.addEventListener('click',(e) => {
+      console.log('click')
+    })
+    console.log(dom3.getAllEvents())
+    const dom5 = document.createElement('div');
+    dom5.innerText = "new div";
+    dom5.addEventListener('click', (e) => {
+      console.log('click');
+    })
+    document.body.append(dom5);
+    console.log(dom5.getAllEvents())
+    console.log(dom5.getAllEventListeners())
+  </script>
+</body>
+</html>
