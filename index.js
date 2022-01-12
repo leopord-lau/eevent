@@ -1,5 +1,6 @@
 (function(global) {
   const document = global.document;
+  const eventMatchReg = /(on)([\w]*)/;
   class BaseEvent {
     constructor(ele) {
       this.element = ele;
@@ -44,23 +45,41 @@
   }
 
   function extendElement(ele) {
-    ele._extends = new BaseEvent(ele);
-    return ele;
-  }
-
-  function extendElement(ele) {
     if(!ele) {
       return null;
     }
     if(!ele._extends) {
       ele._extends = new BaseEvent(ele);
-      return ele;
+      extractEventsFromAttribute(ele);
+    }
+    return ele;
+  }
+
+  function extractEventsFromAttribute(ele) {
+    const names = ele.getAttributeNames();
+    if(names.length) {
+      names.forEach((name) => {
+        if(result = name.match(eventMatchReg)) {
+          const value = ele.getAttribute(name);
+          const fn = eval(narmalizeFunctionName(value));
+          ele._extends.addEvent(result[2], fn);
+        }
+      })
+    }
+    return ele;
+  }
+
+  function narmalizeFunctionName(name) {
+    if(name.includes('(') && name.includes(')') && (name.indexOf('(') < name.indexOf(')'))) {
+      return name.slice(0, name.indexOf('('));
+    } else {
+      return name;
     }
   }
 
-  const createEle = document.createElement;
+  const createElement = document.createElement;
   document.createElement = function() {
-    const newElem = createEle.call(document, arguments[0], arguments[1])
+    const newElem = createElement.call(document, arguments[0], arguments[1])
     extendElement(newElem);
     return newElem;
   }
@@ -77,18 +96,19 @@
     if(!elem) {
       return new HTMLAllCollection();
     }
+
     return proxyObject(elem);
   }
 
   function proxyObject(obj) {
     const hanlder = {
-      get: function(obj, prop) {
+      get: (obj, prop) => {
         return extendElement(obj[prop]);
       }
     }
 
-    const proxyObject = new Proxy({obj}, hanlder);
-    return proxyObject.obj
+    const proxyObject = new Proxy(obj, hanlder);
+    return proxyObject;
   }
 
   const getElementsByName = document.getElementsByName;
