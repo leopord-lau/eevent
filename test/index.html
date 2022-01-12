@@ -8,10 +8,13 @@
   <script src="../index.js"></script>
 </head>
 <body>
-  <div id="eevent" class="eeventc">
+  <div id="eevent" class="eeventc" onclick="log">
     <input type="text" />
   </div>
   <script>
+    function log() {
+      console.log('add by onclick event')
+    }
     function callback3() {
       console.log('click3')
     }
@@ -20,6 +23,7 @@
       console.log('click1')
     })
     console.log(dom1.getAllEvents())
+    console.log(dom1.getAllEventListeners())
     const dom2 = document.getElementsByClassName('eeventc')[0];
     dom2.addEventListener('click',(e) => {
       console.log('click2')
@@ -33,7 +37,14 @@
       })
     })
     console.log(dom3.getAllEvents())
-    console.log(dom3.getAllEventListeners())
+
+    const dom4 = document.querySelector('div')
+    dom4.addEventListener('blur', (e) => {
+      console.log('blur')
+    })
+    console.log(dom4.getAllEvents())
+    console.log(dom4.getAllEventListeners())
+
     const dom5 = document.createElement('div');
     dom5.innerText = "new div";
     dom5.addEventListener('click', callback3)
@@ -41,6 +52,13 @@
     document.body.append(dom5);
     console.log(dom5.getAllEvents())
     console.log(dom5.getAllEventListeners())
+
+    const dom6 = document.querySelectorAll('div')[0]
+    dom6.addEventListener('mouseover', (e) => {
+      console.log('mouseover')
+    })
+    console.log(dom6.getAllEvents())
+    console.log(dom6.getAllEventListeners())
   </script>
 </body>
 </html>
