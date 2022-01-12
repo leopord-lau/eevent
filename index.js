@@ -45,7 +45,6 @@
   }
 
   function extendElement(ele) {
-    console.log(ele)
     if(!ele) {
       return null;
     }
