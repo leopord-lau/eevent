@@ -156,4 +156,4 @@
 
   extendElement(document.body);
 
-})(typeof window !== 'undefined' ? window : null);
+})(window);
