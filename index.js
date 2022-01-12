@@ -137,4 +137,21 @@
     }
     return proxyObject(elem);
   }
+
+  const querySelector = document.querySelector;
+  document.querySelector = function() {
+    const elem = querySelector.call(document, arguments[0]);
+    return extendElement(elem);
+  }
+
+  const querySelectorAll = document.querySelectorAll;
+  document.querySelectorAll = function() {
+    const elem = querySelectorAll.call(document, arguments[0]);
+    if(!elem) {
+      return new NodeList();
+    }
+    return proxyObject(elem);
+  }
+  extendElement(document.body);
+
 })(typeof window !== 'undefined' ? window : null);
