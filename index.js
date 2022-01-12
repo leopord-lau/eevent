@@ -45,6 +45,7 @@
   }
 
   function extendElement(ele) {
+    console.log(ele)
     if(!ele) {
       return null;
     }
@@ -152,6 +153,7 @@
     }
     return proxyObject(elem);
   }
+
   extendElement(document.body);
 
 })(typeof window !== 'undefined' ? window : null);
