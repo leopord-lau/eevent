@@ -1,29 +1,74 @@
 (function(global) {
   const document = global.document;
   const eventMatchReg = /(on)([\w]*)/;
+  const eventList = ['abort', 'blur', 'change', 'click', 'dbclick', 'error', 'focus', 'keydown', 'keypress',
+                    'keyup', 'load', 'mousedown', 'mousemove', 'mouseout', 'mouseup', 'reset', 'select', 'resize', 'submit', 'unload'];
   class BaseEvent {
     constructor(ele) {
       this.element = ele;
       this._events = {};
       this.rewriteAddEventListener();
       this.rewriteRemoveEventListener();
-      ele.getAllEventListeners = this.getAllEventListeners.bind(this);
-      ele.getAllEvents = this.getAllEvents.bind(this)
+      this.observeAssignmentEvent();
+      this.element.getAllEventListeners = this.getAllEventListeners.bind(this);
+      this.element.getAllEvents = this.getAllEvents.bind(this)
+    }
+    observeAssignmentEvent() {
+      const _ = this;
+      eventList.forEach((item) => {
+        Object.defineProperty(_.element, `on${item}`, {
+          set(fn) {
+            let i =  _.isAlreadyListenedByAssignment(item);
+            if(fn) {
+              if( i !== -1) {
+                _.element.removeEventListener(item, _._events[item][i])
+              }
+              _.element.addEventListener(item, {value: fn, intro: 'add by assignment'});
+              return;
+            }
+            if(i !== -1) {
+              _.element.removeEventListener(item, _._events[item][i])
+            }
+          }
+        })
+      })
+    }
+    isAlreadyListenedByAssignment(item) {
+      if(!this._events[item] || this._events[item].length === 0) {
+        return -1;
+      }
+      let idx = -1;
+      this._events[item].forEach((item, i) => {
+        if(typeof item === 'object') {
+          if(item.intro === 'add by assignment') {
+            idx = i;
+            return;
+          }
+        }
+      })
+      return idx;
     }
     rewriteAddEventListener() {
       const addEventListener = this.element.addEventListener;
       const _ = this;
       this.element.addEventListener = function() {
-        _.addEvent(arguments[0], arguments[1])
-        addEventListener.call(this.element, arguments[0], arguments[1], arguments[2])
+        _.addEvent(arguments[0], arguments[1]);
+        if(typeof arguments[1] === 'object') {
+          addEventListener.call(_.element, arguments[0], arguments[1].value, arguments[2])
+        }
+        addEventListener.call(_.element, arguments[0], arguments[1], arguments[2])
       }
     }
     rewriteRemoveEventListener() {
       const removeEventlistener = this.element.removeEventListener;
       const _ = this;
       this.element.removeEventListener = function() {
-        _.removeEvent(arguments[0]);
-        removeEventlistener.call(this.element, arguments[0], arguments[1]);
+        if(_.removeEvent(arguments[0], arguments[1])){
+          if(typeof arguments[1] === 'object') {
+            removeEventlistener.call(_.element, arguments[0], arguments[1].value);
+          }
+          removeEventlistener.call(_.element, arguments[0], arguments[1]);
+        }
       }
     }
     addEvent(eventName, callback) {
@@ -33,8 +78,28 @@
         this._events[eventName] = [callback];
       }
     }
-    removeEvent(eventName) {
-      delete this._events[eventName];
+    removeEvent(eventName, fn) {
+      if(!this._events[eventName]) {
+        console.warn(`event ${eventName} has no listener`);
+        return false;
+      }
+      if(!fn) {
+        console.warn('listener function is expected');
+        return false;
+      }
+      if(this._events[eventName].includes(fn)) {
+        this._events[eventName].splice(this._events[eventName].indexOf(fn), 1);
+        this.deleteEvent(eventName);
+        return true;
+      } else {
+        console.warn(`${fn} is not listen by event ${eventName}`);
+        return false;
+      }
+    }
+    deleteEvent(eventName) {
+      if(this._events[eventName].length === 0) {
+        delete this._events[eventName]
+      }
     }
     getAllEvents() {
       return Object.getOwnPropertyNames(this._events);
@@ -80,8 +145,7 @@
   const createElement = document.createElement;
   document.createElement = function() {
     const newElem = createElement.call(document, arguments[0], arguments[1])
-    extendElement(newElem);
-    return newElem;
+    return extendElement(newElem);
   }
 
   const getElementById = document.getElementById;
@@ -106,7 +170,6 @@
         return extendElement(obj[prop]);
       }
     }
-
     const proxyObject = new Proxy(obj, hanlder);
     return proxyObject;
   }
