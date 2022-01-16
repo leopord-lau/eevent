@@ -15,7 +15,7 @@
       const _ = this;
       this.element.addEventListener = function() {
         _.addEvent(arguments[0], arguments[1])
-        addEventListener.call(this.element, arguments[0], arguments[1])
+        addEventListener.call(this.element, arguments[0], arguments[1], arguments[2])
       }
     }
     rewriteRemoveEventListener() {
