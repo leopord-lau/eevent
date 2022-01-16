@@ -1,6 +1,6 @@
 {
   "name": "eevent",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A small library to get listeners added in elements.",
   "main": "index.js",
   "scripts": {
