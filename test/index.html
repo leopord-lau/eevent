@@ -38,16 +38,10 @@
     dom5.removeEventListener('click', callback3);
     dom5.removeEventListener('click', callback2)
     document.body.appendChild(dom5);
-    console.log(dom5.getAllEvents())
-    console.log(dom5.getAllEventListeners())
     function assignmentCallback() {
       console.log('event add by assigment')
     }
-    dom5.removeEventListener('click', callback3);
-    dom5.removeEventListener('click', assignmentCallback)
-    dom5.onclick = function(e) {
-      console.log('a')
-    }
+    dom5.onclick = assignmentCallback
     dom5.onclick = function(e) {
       console.log('aadssad')
     }
